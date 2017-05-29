@@ -1,0 +1,50 @@
+---
+title: "theaters"
+author: "Jordan Kassof"
+date: "5/29/2017"
+output: html_document
+---
+
+```{r setup}
+library(stringr)
+library(rsquaire)
+theater_data <- readRDS("thtr_data")
+theater_data$name <- trimws(str_replace(theater_data$name, "Theatre", ""))
+theater_data$name <- trimws(str_replace(theater_data$name, "'", ""))
+
+theater_data$seats <- as.numeric(str_replace(theater_data$seats,
+                                  "[^0-9]*",
+                                  ""))
+
+theater_data$established <- as.numeric(str_replace(theater_data$established,
+                                  "[^0-9]*",
+                                  ""))
+
+theater_district <- readLines("bwaylayout.csv")
+
+district_layout <- paste(theater_district, collapse = "\n")
+
+custom_labels <- vector(mode = "list", length = nrow(theater_data))
+
+names(custom_labels) <- theater_data$name
+
+for (i in 1:nrow(theater_data)) {
+  custom_labels[[i]] <- list(full = theater_data$name[i],
+                             short = theater_data$name[i])
+}
+
+
+library(rsquaire)
+
+rsquaire(theater_data[,1:3],
+         layout = district_layout,
+         labels = custom_labels,
+         index = "seats",
+         labelStyle = "short",
+         layout_key = "name",
+         tooltip = TRUE,
+         mode = "dynamic"
+         )
+
+```
+
